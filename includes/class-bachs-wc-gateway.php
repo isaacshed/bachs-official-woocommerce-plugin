@@ -40,10 +40,26 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 	 */
 	const MAX_STORED_EVENT_IDS = 50;
 
-	/**
-	 * Checkout session statuses that mean the customer has not paid on the session.
+	/*
+	 * Bachs checkout statuses (the same in sandbox and live), normalised to lower_snake_case.
+	 * A status in none of these lists is treated as paid, so the plugin errs towards holding
+	 * an order rather than cancelling it or charging the customer twice.
 	 */
-	const UNPAID_SESSION_STATUSES = array( 'expired', 'canceled', 'cancelled', 'failed' );
+
+	/**
+	 * The customer can still pay, or a payment is in progress.
+	 */
+	const OPEN_SESSION_STATUSES = array( 'open', 'incomplete' );
+
+	/**
+	 * Closed with no money kept: never paid, or paid and returned in full.
+	 */
+	const UNPAID_SESSION_STATUSES = array( 'expired', 'cancelled', 'canceled', 'failed', 'refunded', 'auto_refunded' );
+
+	/**
+	 * Money was received and kept, in full or in part.
+	 */
+	const PAID_SESSION_STATUSES = array( 'succeeded', 'accepted', 'overpaid', 'underpaid', 'partially_refunded' );
 
 	/**
 	 * @var bool
@@ -606,27 +622,30 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * @param object $session
-	 * @return string Lower-case status, or '' when missing.
+	 * @return string Status in lower_snake_case ("Partially refunded" → partially_refunded), or ''.
 	 */
 	protected function get_session_status( $session ) {
-		return isset( $session->status ) && is_scalar( $session->status ) ? strtolower( (string) $session->status ) : '';
+		if ( ! isset( $session->status ) || ! is_scalar( $session->status ) ) {
+			return '';
+		}
+		return trim( preg_replace( '/[^a-z]+/', '_', strtolower( (string) $session->status ) ), '_' );
 	}
 
 	/**
-	 * Group a checkout session status: 'open', 'unpaid' (closed without payment) or 'paid'.
+	 * Group a checkout status: 'open', 'unpaid' (no money kept) or 'paid' (money received).
 	 *
-	 * Anything that is neither open nor a known unpaid status is treated as paid, so the plugin
-	 * errs towards not charging the customer twice and not cancelling a paid order.
-	 *
-	 * @param string $status
+	 * @param string $status Normalised status.
 	 * @return string
 	 */
 	protected function classify_session_status( $status ) {
-		if ( 'open' === $status ) {
+		if ( in_array( $status, self::OPEN_SESSION_STATUSES, true ) ) {
 			return 'open';
 		}
 		if ( in_array( $status, self::UNPAID_SESSION_STATUSES, true ) ) {
 			return 'unpaid';
+		}
+		if ( ! in_array( $status, self::PAID_SESSION_STATUSES, true ) ) {
+			$this->log( sprintf( 'Unknown Bachs checkout status "%s"; treating it as paid.', $status ), 'warning' );
 		}
 		return 'paid';
 	}
@@ -683,11 +702,12 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 		switch ( $result ) {
 			case 'held':
-			case 'open':
-				// Paid (now on hold), or the customer is still on the checkout. Check again next run.
+				// Paid: now on hold until the webhook confirms it.
 				return false;
+			case 'open':
 			case 'error':
-				// Bachs couldn't be reached. Keep the order for a day, then let WooCommerce cancel it.
+				// Still paying (or incomplete), or Bachs couldn't be reached. Keep the order for a
+				// day, then let WooCommerce cancel it, so an abandoned checkout can't hold stock forever.
 				$created = $order->get_date_created();
 				return $created && ( time() - $created->getTimestamp() ) > DAY_IN_SECONDS;
 			default:
