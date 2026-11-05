@@ -36,7 +36,13 @@ The tests use lightweight WordPress and WooCommerce stand-ins (`tests/bootstrap.
 | `assets/` | Checkout JS, CSS and images |
 | `languages/` | Translation template |
 
-Files listed in `.distignore` are left out of the release zip.
+### Release zip
+
+```bash
+bin/build-zip.sh
+```
+
+This builds `dist/bachs-payment-gateway-for-woocommerce-<version>.zip` from the committed tree. It checks that the plugin header version, `BACHS_WC_VERSION` and the readme's `Stable tag` match. Dev files (`tests/`, `bin/`, `.github/`, this README) are excluded through `.gitattributes`; `.distignore` lists the same files for tools such as `wp dist-archive`.
 
 ## License
 

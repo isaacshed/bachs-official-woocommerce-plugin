@@ -4,3 +4,6 @@
 .gitignore
 .distignore
 README.md
+/bin
+/dist
+.gitattributes

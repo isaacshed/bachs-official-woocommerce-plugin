@@ -1,0 +1,8 @@
+# Left out of release zips (bin/build-zip.sh) and GitHub archives.
+/.github        export-ignore
+/bin            export-ignore
+/tests          export-ignore
+/.gitattributes export-ignore
+/.gitignore     export-ignore
+/.distignore    export-ignore
+/README.md      export-ignore
