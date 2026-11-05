@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bachs Payment Gateway for WooCommerce
  * Plugin URI: https://bachs.io
- * Description: Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies.
+ * Description: Bachs for WooCommerce allows your WooCommerce store to accept card, bank transfer, mobile money and crypto payments in different currencies.
  * Version: 1.0.0
  * Author: Bachs
  * Author URI: https://bachs.io

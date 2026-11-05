@@ -8,7 +8,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies.
+Bachs for WooCommerce allows your WooCommerce store to accept card, bank transfer, mobile money and crypto payments in different currencies.
 
 == Description ==
 

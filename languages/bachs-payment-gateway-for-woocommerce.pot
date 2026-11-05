@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-05T21:44:21+00:00\n"
+"POT-Creation-Date: 2026-11-05T22:38:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: bachs-payment-gateway-for-woocommerce\n"
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Description of the plugin
 #: bachs-payment-gateway-for-woocommerce.php
-msgid "Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies."
+msgid "Bachs for WooCommerce allows your WooCommerce store to accept card, bank transfer, mobile money and crypto payments in different currencies."
 msgstr ""
 
 #. Author of the plugin
@@ -64,7 +64,7 @@ msgid "Bachs is in <strong>test mode</strong>. Disable it <a href=\"%s\">here</a
 msgstr ""
 
 #: includes/class-bachs-wc-gateway.php:85
-msgid "Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup."
+msgid "Bachs for WooCommerce allows your WooCommerce store to accept card, bank transfer, mobile money and crypto payments in different currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup."
 msgstr ""
 
 #: includes/class-bachs-wc-gateway.php:166
@@ -92,7 +92,7 @@ msgid "Payment method description shown to the customer during checkout."
 msgstr ""
 
 #: includes/class-bachs-wc-gateway.php:182
-msgid "Pay securely with Bachs using your preferred local or global payment method and currency."
+msgid "Pay securely via Bachs — card, bank transfer, mobile money and crypto."
 msgstr ""
 
 #: includes/class-bachs-wc-gateway.php:186

@@ -82,7 +82,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 		$this->id                 = Bachs_WC_Helpers::GATEWAY_ID;
 		$this->method_title       = __( 'Bachs', 'bachs-payment-gateway-for-woocommerce' );
-		$this->method_description = __( 'Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup.', 'bachs-payment-gateway-for-woocommerce' );
+		$this->method_description = __( 'Bachs for WooCommerce allows your WooCommerce store to accept card, bank transfer, mobile money and crypto payments in different currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup.', 'bachs-payment-gateway-for-woocommerce' );
 		$this->icon               = apply_filters( 'bachs_wc_gateway_icon_url', BACHS_WC_URL . '/assets/images/bachs-icon.png' );
 		$this->has_fields         = false;
 
@@ -179,7 +179,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				'title'       => __( 'Description', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'textarea',
 				'description' => __( 'Payment method description shown to the customer during checkout.', 'bachs-payment-gateway-for-woocommerce' ),
-				'default'     => __( 'Pay securely with Bachs using your preferred local or global payment method and currency.', 'bachs-payment-gateway-for-woocommerce' ),
+				'default'     => __( 'Pay securely via Bachs — card, bank transfer, mobile money and crypto.', 'bachs-payment-gateway-for-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'checkout_type'       => array(
