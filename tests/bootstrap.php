@@ -5,13 +5,14 @@
  * Only what the plugin calls is implemented. HTTP calls go through wp_remote_request(), which
  * replays responses queued with bachs_test_queue_response() and records each request.
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 // phpcs:ignoreFile
 
 define( 'ABSPATH', __DIR__ . '/' );
 define( 'HOUR_IN_SECONDS', 3600 );
+define( 'DAY_IN_SECONDS', 86400 );
 
 $GLOBALS['bachs_test'] = array();
 
@@ -171,7 +172,9 @@ class WC_Payment_Gateway {
 	public function get_title() { return $this->title; }
 }
 
-class Fake_Order {
+class WC_Order {}
+
+class Fake_Order extends WC_Order {
 	public $id;
 	public $status       = 'pending';
 	public $total        = '100.00';
@@ -183,6 +186,7 @@ class Fake_Order {
 	public $completed    = 0;
 	public $saves        = 0;
 	public $payment      = 'bachs';
+	public $created      = null;
 
 	public function __construct( $id ) { $this->id = $id; }
 	public function get_id() { return $this->id; }
@@ -195,6 +199,8 @@ class Fake_Order {
 	public function set_transaction_id( $id ) { $this->transaction = $id; }
 	public function get_meta( $key ) { return isset( $this->meta[ $key ] ) ? $this->meta[ $key ] : ''; }
 	public function update_meta_data( $key, $value ) { $this->meta[ $key ] = $value; }
+	public function delete_meta_data( $key ) { unset( $this->meta[ $key ] ); }
+	public function get_date_created() { return new DateTime( '@' . ( null === $this->created ? time() : $this->created ) ); }
 	public function save() { ++$this->saves; }
 	public function has_status( $status ) { return in_array( $this->status, (array) $status, true ); }
 	public function is_paid() { return in_array( $this->status, array( 'processing', 'completed' ), true ); }
@@ -222,7 +228,7 @@ class Fake_Order {
 	public function get_cancel_order_url() { return 'https://shop.example/cart/?cancel_order=' . $this->id; }
 }
 
-define( 'BACHS_WC_URL', 'https://shop.example/wp-content/plugins/bachs-woocommerce-payment-gateway' );
+define( 'BACHS_WC_URL', 'https://shop.example/wp-content/plugins/bachs-payment-gateway-for-woocommerce' );
 define( 'BACHS_WC_PATH', dirname( __DIR__ ) );
 define( 'BACHS_WC_VERSION', 'test' );
 

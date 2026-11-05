@@ -1,4 +1,4 @@
-=== Bachs WooCommerce Payment Gateway ===
+=== Bachs Payment Gateway for WooCommerce ===
 Contributors: bachs
 Tags: woocommerce, payment gateway, bachs, payments, africa
 Requires at least: 6.2
@@ -20,6 +20,7 @@ Bachs for WooCommerce allows your WooCommerce store to accept secure payments fr
 * **Local and global payment methods.** Cards, bank transfer, mobile money and crypto stablecoins, all handled on the Bachs checkout.
 * **Price in your local currency.** Sell in USD, NGN, GHS, KES, MWK, RWF, TZS, UGX, XAF, XOF or ZMW. The plugin reads the live list of supported currencies from Bachs.
 * **Webhook-verified fulfilment.** Orders complete on the signed `collection.succeeded` event, after the plugin checks the payment matches the order total. Payments that don't match are put on hold for review.
+* **Paid orders are never auto-cancelled.** When a customer returns from Bachs, and before WooCommerce cancels an unpaid order, the plugin checks the payment with Bachs. A paid order is put on hold until the payment webhook confirms it, so a late webhook can't cost you the sale.
 * **Protection against double charges.** A customer who returns to pay an order that is already paid isn't sent to a second checkout, and any duplicate payment is flagged on the order for refund.
 * **Failed, expired and short payments.** Failed payments mark the order failed, short payments put it on hold, and customers whose checkout expired can pay again or cancel.
 * **Refunds.** Refund from the WooCommerce order screen.
@@ -59,7 +60,7 @@ The plugin checks every successful payment against the order before completing i
 
 = Why did my order not complete after payment? =
 
-Orders complete when Bachs delivers the signed `collection.succeeded` webhook. Confirm your webhook URL and signing secret are set correctly, and that your site is reachable from the internet.
+Orders complete when Bachs delivers the signed `collection.succeeded` webhook. If the customer has paid but the webhook hasn't arrived, the plugin puts the order on hold (with a note) instead of leaving it to be cancelled, and completes it when the webhook lands. If orders stay on hold, confirm your webhook URL and signing secret are set correctly, and that your site is reachable from the internet.
 
 = Can I refund a payment? =
 

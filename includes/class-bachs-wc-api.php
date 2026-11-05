@@ -2,7 +2,7 @@
 /**
  * Thin wrapper around the Bachs REST API.
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -85,7 +85,7 @@ class Bachs_WC_API {
 			'method'     => $method,
 			'timeout'    => $timeout,
 			'headers'    => wp_parse_args( $headers, $default_headers ),
-			'user-agent' => 'BachsWooCommercePaymentGateway/' . BACHS_WC_VERSION . '; ' . home_url(),
+			'user-agent' => 'BachsPaymentGatewayForWooCommerce/' . BACHS_WC_VERSION . '; ' . home_url(),
 		);
 
 		$url = $this->api_url . ltrim( $endpoint, '/' );

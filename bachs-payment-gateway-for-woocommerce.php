@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Bachs WooCommerce Payment Gateway
+ * Plugin Name: Bachs Payment Gateway for WooCommerce
  * Plugin URI: https://bachs.io
  * Description: Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies.
  * Version: 1.0.0
@@ -13,10 +13,10 @@
  * Requires PHP: 7.4
  * WC requires at least: 8.0
  * WC tested up to: 11.1
- * Text Domain: bachs-woocommerce-payment-gateway
+ * Text Domain: bachs-payment-gateway-for-woocommerce
  * Domain Path: /languages
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,8 +46,61 @@ function bachs_wc_init() {
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'bachs_wc_plugin_action_links' );
 	add_action( 'admin_notices', 'bachs_wc_admin_notices' );
 	add_action( 'admin_init', array( 'Bachs_WC_Helpers', 'maybe_refresh_supported_currencies' ) );
+
+	// Payment checks for when the webhook is late. Registered here rather than in the gateway,
+	// so they also run where WooCommerce hasn't loaded the gateways (the unpaid-order cron).
+	add_action( 'template_redirect', 'bachs_wc_check_payment_on_return' );
+	add_filter( 'woocommerce_cancel_unpaid_order', 'bachs_wc_filter_cancel_unpaid_order', 10, 2 );
 }
 add_action( 'plugins_loaded', 'bachs_wc_init', 99 );
+
+/**
+ * The Bachs gateway instance, if WooCommerce has it registered.
+ *
+ * @return Bachs_WC_Gateway|null
+ */
+function bachs_wc_gateway() {
+	if ( ! function_exists( 'WC' ) || ! WC()->payment_gateways() ) {
+		return null;
+	}
+	$gateways = WC()->payment_gateways()->payment_gateways();
+	return isset( $gateways['bachs'] ) && $gateways['bachs'] instanceof Bachs_WC_Gateway ? $gateways['bachs'] : null;
+}
+
+/**
+ * On the order-received page, check the Bachs session before the page renders. Runs on
+ * template_redirect so it works with classic and block (Order Confirmation) themes alike.
+ */
+function bachs_wc_check_payment_on_return() {
+	if ( ! function_exists( 'is_order_received_page' ) || ! is_order_received_page() ) {
+		return;
+	}
+
+	global $wp;
+	$order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The order key is the access check WooCommerce uses for this page.
+	$order_key = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : '';
+	$order     = $order_id ? wc_get_order( $order_id ) : false;
+
+	if ( ! $order || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+		return;
+	}
+
+	$gateway = bachs_wc_gateway();
+	if ( $gateway ) {
+		$gateway->check_payment_on_return( $order_id );
+	}
+}
+
+/**
+ * @param bool     $cancel
+ * @param WC_Order $order
+ * @return bool
+ */
+function bachs_wc_filter_cancel_unpaid_order( $cancel, $order ) {
+	$gateway = bachs_wc_gateway();
+	return $gateway ? $gateway->filter_cancel_unpaid_order( $cancel, $order ) : $cancel;
+}
 
 /**
  * Register the WooCommerce Blocks (checkout blocks) integration.
@@ -102,7 +155,7 @@ function bachs_wc_settings_url() {
  */
 function bachs_wc_plugin_action_links( $links ) {
 	$settings_link = array(
-		'settings' => '<a href="' . esc_url( bachs_wc_settings_url() ) . '">' . esc_html__( 'Settings', 'bachs-woocommerce-payment-gateway' ) . '</a>',
+		'settings' => '<a href="' . esc_url( bachs_wc_settings_url() ) . '">' . esc_html__( 'Settings', 'bachs-payment-gateway-for-woocommerce' ) . '</a>',
 	);
 	return array_merge( $settings_link, $links );
 }
@@ -119,7 +172,7 @@ function bachs_wc_missing_wc_notice() {
 		return;
 	}
 	/* translators: %s: WooCommerce link */
-	echo '<div class="notice notice-error"><p><strong>' . wp_kses_post( sprintf( __( 'Bachs WooCommerce Payment Gateway requires WooCommerce to be installed and active. You can download %s here.', 'bachs-woocommerce-payment-gateway' ), '<a href="https://woocommerce.com/" target="_blank" rel="noopener">WooCommerce</a>' ) ) . '</strong></p></div>';
+	echo '<div class="notice notice-error"><p><strong>' . wp_kses_post( sprintf( __( 'Bachs Payment Gateway for WooCommerce requires WooCommerce to be installed and active. You can download %s here.', 'bachs-payment-gateway-for-woocommerce' ), '<a href="https://woocommerce.com/" target="_blank" rel="noopener">WooCommerce</a>' ) ) . '</strong></p></div>';
 }
 
 /**
@@ -145,7 +198,7 @@ function bachs_wc_admin_notices() {
 		echo '<div class="notice notice-error"><p>' . wp_kses_post(
 			sprintf(
 				/* translators: 1: store currency code, 2: comma-separated list of supported currency codes */
-				__( '<strong>Bachs is not available at checkout</strong> because your store currency (%1$s) is not supported by Bachs. Supported currencies: %2$s. Change it under WooCommerce → Settings → General.', 'bachs-woocommerce-payment-gateway' ),
+				__( '<strong>Bachs is not available at checkout</strong> because your store currency (%1$s) is not supported by Bachs. Supported currencies: %2$s. Change it under WooCommerce → Settings → General.', 'bachs-payment-gateway-for-woocommerce' ),
 				esc_html( $currency ),
 				esc_html( implode( ', ', Bachs_WC_Helpers::supported_currencies() ) )
 			)
@@ -154,11 +207,11 @@ function bachs_wc_admin_notices() {
 
 	if ( ! Bachs_WC_Helpers::has_keys() ) {
 		/* translators: %s: settings URL */
-		echo '<div class="notice notice-error"><p>' . wp_kses_post( sprintf( __( 'Bachs is enabled but no API key is set for the current mode. Add your keys <a href="%s">here</a>.', 'bachs-woocommerce-payment-gateway' ), $settings_url ) ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . wp_kses_post( sprintf( __( 'Bachs is enabled but no API key is set for the current mode. Add your keys <a href="%s">here</a>.', 'bachs-payment-gateway-for-woocommerce' ), $settings_url ) ) . '</p></div>';
 	}
 
 	if ( Bachs_WC_Helpers::is_test_mode() ) {
 		/* translators: %s: settings URL */
-		echo '<div class="notice notice-warning is-dismissible"><p>' . wp_kses_post( sprintf( __( 'Bachs is in <strong>test mode</strong>. Disable it <a href="%s">here</a> when you are ready to accept live payments.', 'bachs-woocommerce-payment-gateway' ), $settings_url ) ) . '</p></div>';
+		echo '<div class="notice notice-warning is-dismissible"><p>' . wp_kses_post( sprintf( __( 'Bachs is in <strong>test mode</strong>. Disable it <a href="%s">here</a> when you are ready to accept live payments.', 'bachs-payment-gateway-for-woocommerce' ), $settings_url ) ) . '</p></div>';
 	}
 }

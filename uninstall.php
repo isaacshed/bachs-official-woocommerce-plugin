@@ -5,7 +5,7 @@
  * Order and user meta (Bachs charge, refund and customer IDs) are kept, because they are part
  * of the store's payment records.
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {

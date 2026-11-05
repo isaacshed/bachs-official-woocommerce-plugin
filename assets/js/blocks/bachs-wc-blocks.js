@@ -9,7 +9,7 @@
 	const { getSetting } = window.wc.wcSettings;
 
 	const settings = getSetting( 'bachs_data', {} );
-	const defaultLabel = __( 'Bachs', 'bachs-woocommerce-payment-gateway' );
+	const defaultLabel = __( 'Bachs', 'bachs-payment-gateway-for-woocommerce' );
 	const label = decodeEntities( settings.title ) || defaultLabel;
 
 	const Content = () => {

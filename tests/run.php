@@ -2,7 +2,7 @@
 /**
  * Plain-PHP tests for the payment, webhook and refund logic. Run: php tests/run.php
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 // phpcs:ignoreFile
@@ -104,7 +104,7 @@ $gw    = setup();
 $order = make_order( 1, '25000', 'UGX' );
 bachs_test_queue_response( 201, array( 'checkout_id' => 'chk_1', 'checkout_url' => 'https://checkout.bachs.io/c/chk_1' ) );
 $gw->process_payment( 1 );
-check( 'UGX amount has no decimals', '25000' === bachs_test_requests()[0]['body']['pricing']['amount'] );
+check( 'UGX amount sent with 2 decimals', '25000.00' === bachs_test_requests()[0]['body']['pricing']['amount'] );
 
 // Unsupported currency.
 $gw    = setup();
@@ -143,6 +143,7 @@ bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
 $result = $gw->process_payment( 1 );
 check( 'completed session: no new session', 1 === count( bachs_test_requests() ) );
 check( 'completed session: sent to order-received', false !== strpos( $result['redirect'], 'order-received' ) );
+check( 'completed session: order held for the webhook', 'on-hold' === $order->status && 'chk_1' === $order->meta['_bachs_awaiting_webhook'] );
 
 // Session lookup fails: refuse rather than risk a double charge.
 $gw    = setup();
@@ -169,6 +170,92 @@ bachs_test_queue_response( 409, array( 'error_code' => 'IDEMPOTENCY_CONFLICT', '
 bachs_test_queue_response( 201, array( 'checkout_id' => 'chk_2', 'checkout_url' => 'https://checkout.bachs.io/c/chk_2' ) );
 $result = $gw->process_payment( 1 );
 check( 'idempotency conflict: retried with next reference', 'wc_order_key1-2' === bachs_test_requests()[1]['body']['reference'] && 'success' === $result['result'] );
+
+// --- Return page and unpaid-order cancellation ---------------------------------------
+
+function pending_with_session( $created = null ) {
+	$gw    = setup();
+	$order = make_order();
+	$order->created                     = $created;
+	$order->meta['_bachs_checkout_id'] = 'chk_2';
+	$order->meta['_bachs_sessions']    = array(
+		'chk_1' => array( 'amount' => '100.00', 'currency' => 'USD', 'mode' => 'sandbox' ),
+		'chk_2' => array( 'amount' => '100.00', 'currency' => 'USD', 'mode' => 'sandbox' ),
+	);
+	return array( $gw, $order );
+}
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
+$gw->check_payment_on_return( 1 );
+check( 'return: paid session puts order on hold', 'on-hold' === $order->status && 0 === $order->completed );
+check( 'return: checks the latest session', false !== strpos( bachs_test_requests()[0]['url'], 'checkout-sessions/chk_2' ) );
+
+list( $gw, $order ) = pending_with_session();
+$_GET['checkout_id'] = 'chk_1';
+bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
+$gw->check_payment_on_return( 1 );
+check( 'return: uses checkout_id from the URL when the order created it', false !== strpos( bachs_test_requests()[0]['url'], 'checkout-sessions/chk_1' ) );
+
+list( $gw, $order ) = pending_with_session();
+$_GET['checkout_id'] = 'chk_someone_else';
+bachs_test_queue_response( 200, array( 'status' => 'open' ) );
+$gw->check_payment_on_return( 1 );
+check( 'return: ignores a checkout_id the order did not create', false !== strpos( bachs_test_requests()[0]['url'], 'checkout-sessions/chk_2' ) );
+check( 'return: open session leaves order pending', 'pending' === $order->status );
+unset( $_GET['checkout_id'] );
+
+list( $gw, $order ) = pending_with_session();
+$order->status = 'processing';
+$gw->check_payment_on_return( 1 );
+check( 'return: paid orders are not checked', 0 === count( bachs_test_requests() ) );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'expired' ) );
+$gw->check_payment_on_return( 1 );
+check( 'return: expired session leaves order pending', 'pending' === $order->status );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
+check( 'cancel: paid session prevents cancellation', false === $gw->filter_cancel_unpaid_order( true, $order ) && 'on-hold' === $order->status );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'open' ) );
+check( 'cancel: open session prevents cancellation', false === $gw->filter_cancel_unpaid_order( true, $order ) );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'expired' ) );
+check( 'cancel: expired session allows cancellation', true === $gw->filter_cancel_unpaid_order( true, $order ) );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 503, 'down' );
+check( 'cancel: API error keeps a recent order', false === $gw->filter_cancel_unpaid_order( true, $order ) );
+
+list( $gw, $order ) = pending_with_session( time() - 2 * 86400 );
+bachs_test_queue_response( 503, 'down' );
+check( 'cancel: API error lets an old order be cancelled', true === $gw->filter_cancel_unpaid_order( true, $order ) );
+
+list( $gw, $order ) = pending_with_session();
+check( 'cancel: respects WooCommerce deciding not to cancel', false === $gw->filter_cancel_unpaid_order( false, $order ) && 0 === count( bachs_test_requests() ) );
+
+list( $gw, $order ) = pending_with_session();
+$order->payment = 'cod';
+check( 'cancel: other gateways untouched', true === $gw->filter_cancel_unpaid_order( true, $order ) && 0 === count( bachs_test_requests() ) );
+
+// Held by the return check, then the webhook arrives and completes the order.
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
+$gw->check_payment_on_return( 1 );
+list( $data, $evt ) = event( 'evt_1', 'collection.succeeded', succeeded_data( array( 'checkout_id' => 'chk_2' ) ) );
+$gw->handle_collection_succeeded( $data, $evt );
+check( 'held order completes when the webhook arrives', 1 === $order->completed && 'processing' === $order->status && ! isset( $order->meta['_bachs_awaiting_webhook'] ) );
+
+list( $gw, $order ) = pending_with_session();
+bachs_test_queue_response( 200, array( 'status' => 'complete' ) );
+$gw->check_payment_on_return( 1 );
+list( $data, $evt ) = event( 'evt_1', 'collection.failed', array( 'checkout_id' => 'chk_2', 'metadata' => (object) array( 'order_id' => '1' ) ) );
+$gw->handle_collection_failed( $data, $evt );
+check( 'held order is not failed by collection.failed', 'on-hold' === $order->status );
 
 // --- collection.succeeded ------------------------------------------------------------
 

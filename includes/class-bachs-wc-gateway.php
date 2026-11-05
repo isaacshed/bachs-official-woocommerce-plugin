@@ -2,7 +2,7 @@
 /**
  * Bachs WooCommerce payment gateway (hosted checkout, by redirect or popup).
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,6 +28,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 	const META_EVENT_IDS            = '_bachs_event_ids';
 	const META_REFUND_ID            = '_bachs_refund_id';
 	const META_REFUND_STATUS        = '_bachs_refund_status';
+	const META_AWAITING_WEBHOOK     = '_bachs_awaiting_webhook';
 
 	/**
 	 * Don't reuse an open session that expires within this many seconds.
@@ -64,8 +65,8 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 	public function __construct() {
 
 		$this->id                 = Bachs_WC_Helpers::GATEWAY_ID;
-		$this->method_title       = __( 'Bachs', 'bachs-woocommerce-payment-gateway' );
-		$this->method_description = __( 'Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup.', 'bachs-woocommerce-payment-gateway' );
+		$this->method_title       = __( 'Bachs', 'bachs-payment-gateway-for-woocommerce' );
+		$this->method_description = __( 'Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup.', 'bachs-payment-gateway-for-woocommerce' );
 		$this->icon               = apply_filters( 'bachs_wc_gateway_icon_url', BACHS_WC_URL . '/assets/images/bachs-icon.png' );
 		$this->has_fields         = false;
 
@@ -146,90 +147,90 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 		$this->form_fields = array(
 			'enabled'             => array(
-				'title'   => __( 'Enable/Disable', 'bachs-woocommerce-payment-gateway' ),
-				'label'   => __( 'Enable Bachs', 'bachs-woocommerce-payment-gateway' ),
+				'title'   => __( 'Enable/Disable', 'bachs-payment-gateway-for-woocommerce' ),
+				'label'   => __( 'Enable Bachs', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'default' => 'no',
 			),
 			'title'               => array(
-				'title'       => __( 'Title', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Title', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'text',
-				'description' => __( 'Payment method title shown to the customer during checkout.', 'bachs-woocommerce-payment-gateway' ),
-				'default'     => __( 'Bachs', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Payment method title shown to the customer during checkout.', 'bachs-payment-gateway-for-woocommerce' ),
+				'default'     => __( 'Bachs', 'bachs-payment-gateway-for-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'description'         => array(
-				'title'       => __( 'Description', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Description', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'textarea',
-				'description' => __( 'Payment method description shown to the customer during checkout.', 'bachs-woocommerce-payment-gateway' ),
-				'default'     => __( 'Pay securely with Bachs using your preferred local or global payment method and currency.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Payment method description shown to the customer during checkout.', 'bachs-payment-gateway-for-woocommerce' ),
+				'default'     => __( 'Pay securely with Bachs using your preferred local or global payment method and currency.', 'bachs-payment-gateway-for-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'checkout_type'       => array(
-				'title'       => __( 'Checkout type', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Checkout type', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'select',
-				'description' => __( 'Redirect sends the customer to the Bachs hosted checkout page. Popup opens the Bachs checkout in a modal on your site (the customer stays on your store).', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Redirect sends the customer to the Bachs hosted checkout page. Popup opens the Bachs checkout in a modal on your site (the customer stays on your store).', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => 'redirect',
 				'desc_tip'    => true,
 				'options'     => array(
-					'redirect' => __( 'Redirect (hosted checkout page)', 'bachs-woocommerce-payment-gateway' ),
-					'popup'    => __( 'Popup (on-site modal)', 'bachs-woocommerce-payment-gateway' ),
+					'redirect' => __( 'Redirect (hosted checkout page)', 'bachs-payment-gateway-for-woocommerce' ),
+					'popup'    => __( 'Popup (on-site modal)', 'bachs-payment-gateway-for-woocommerce' ),
 				),
 			),
 			'testmode'            => array(
-				'title'       => __( 'Test mode', 'bachs-woocommerce-payment-gateway' ),
-				'label'       => __( 'Enable test (sandbox) mode', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Test mode', 'bachs-payment-gateway-for-woocommerce' ),
+				'label'       => __( 'Enable test (sandbox) mode', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'checkbox',
-				'description' => __( 'Uses the Bachs sandbox environment and your sandbox keys. Uncheck to accept live payments.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Uses the Bachs sandbox environment and your sandbox keys. Uncheck to accept live payments.', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => 'yes',
 				'desc_tip'    => true,
 			),
 			'test_api_key'        => array(
-				'title'       => __( 'Sandbox API Key', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Sandbox API Key', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'password',
-				'description' => __( 'Your Bachs sandbox API key (starts with sk_sandbox_). Find it under Developer → API keys in your Bachs dashboard.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Your Bachs sandbox API key (starts with sk_sandbox_). Find it under Developer → API keys in your Bachs dashboard.', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => '',
 				'class'       => 'bachs-wc-test-field',
 			),
 			'test_webhook_secret' => array(
-				'title'       => __( 'Sandbox Webhook Signing Secret', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Sandbox Webhook Signing Secret', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'password',
-				'description' => __( 'The signing secret for your sandbox webhook endpoint, from the Bachs developer portal.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'The signing secret for your sandbox webhook endpoint, from the Bachs developer portal.', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => '',
 				'class'       => 'bachs-wc-test-field',
 			),
 			'live_api_key'        => array(
-				'title'       => __( 'Live API Key', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Live API Key', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'password',
-				'description' => __( 'Your Bachs live API key (starts with sk_live_). Find it under Developer → API keys in your Bachs dashboard.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'Your Bachs live API key (starts with sk_live_). Find it under Developer → API keys in your Bachs dashboard.', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => '',
 				'class'       => 'bachs-wc-live-field',
 			),
 			'live_webhook_secret' => array(
-				'title'       => __( 'Live Webhook Signing Secret', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Live Webhook Signing Secret', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'password',
-				'description' => __( 'The signing secret for your live webhook endpoint, from the Bachs developer portal.', 'bachs-woocommerce-payment-gateway' ),
+				'description' => __( 'The signing secret for your live webhook endpoint, from the Bachs developer portal.', 'bachs-payment-gateway-for-woocommerce' ),
 				'default'     => '',
 				'class'       => 'bachs-wc-live-field',
 			),
 			'webhook_url'         => array(
-				'title'       => __( 'Webhook URL', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Webhook URL', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'bachs_webhook_url',
 				'description' => sprintf(
 					/* translators: 1: comma-separated list of webhook event names, 2: opening link tag, 3: closing link tag */
-					__( 'Add this URL as a webhook endpoint in your %2$sBachs developer portal%3$s and subscribe to these events: %1$s.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'Add this URL as a webhook endpoint in your %2$sBachs developer portal%3$s and subscribe to these events: %1$s.', 'bachs-payment-gateway-for-woocommerce' ),
 					'<code>' . implode( ', ', array_keys( self::webhook_events() ) ) . '</code>',
 					'<a href="' . esc_url( Bachs_WC_Helpers::dashboard_base_url() ) . '" target="_blank" rel="noopener">',
 					'</a>'
 				),
 			),
 			'debug'               => array(
-				'title'       => __( 'Debug log', 'bachs-woocommerce-payment-gateway' ),
-				'label'       => __( 'Enable logging', 'bachs-woocommerce-payment-gateway' ),
+				'title'       => __( 'Debug log', 'bachs-payment-gateway-for-woocommerce' ),
+				'label'       => __( 'Enable logging', 'bachs-payment-gateway-for-woocommerce' ),
 				'type'        => 'checkbox',
 				'description' => sprintf(
 					/* translators: %s: log location */
-					__( 'Log gateway events to %s. Errors are always logged.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'Log gateway events to %s. Errors are always logged.', 'bachs-payment-gateway-for-woocommerce' ),
 					'<code>WooCommerce → Status → Logs</code>'
 				),
 				'default'     => 'no',
@@ -323,7 +324,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 			if ( ! Bachs_WC_Helpers::is_currency_supported( $order->get_currency() ) ) {
 				/* translators: %s: currency code */
-				throw new Exception( sprintf( __( 'Bachs does not support the %s currency.', 'bachs-woocommerce-payment-gateway' ), $order->get_currency() ) );
+				throw new Exception( sprintf( __( 'Bachs does not support the %s currency.', 'bachs-payment-gateway-for-woocommerce' ), $order->get_currency() ) );
 			}
 
 			$state = $this->get_session_state( $order );
@@ -332,6 +333,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				// The customer already paid on this order's checkout and the webhook hasn't landed
 				// yet. Don't open a second session, or they could be charged twice.
 				$this->log( sprintf( 'Order #%d: checkout session %s is %s, so no new session was created.', $order_id, $state['checkout_id'], $state['status'] ), 'warning' );
+				$this->hold_for_confirmation( $order, $state['checkout_id'], $state['status'] );
 
 				return array(
 					'result'   => 'success',
@@ -373,7 +375,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 			$this->log( sprintf( 'process_payment error for order #%d: %s', $order_id, $e->getMessage() ), 'error' );
 
-			wc_add_notice( __( 'Unable to start the Bachs payment. Please try again.', 'bachs-woocommerce-payment-gateway' ), 'error' );
+			wc_add_notice( __( 'Unable to start the Bachs payment. Please try again.', 'bachs-payment-gateway-for-woocommerce' ), 'error' );
 
 			return array( 'result' => 'failure' );
 		}
@@ -480,7 +482,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$is_popup = 'popup' === $this->checkout_type;
 
 		$order->update_meta_data( self::META_CHECKOUT_URL, $checkout_url );
-		$order->update_status( 'pending', __( 'Awaiting Bachs payment.', 'bachs-woocommerce-payment-gateway' ) );
+		$order->update_status( 'pending', __( 'Awaiting Bachs payment.', 'bachs-payment-gateway-for-woocommerce' ) );
 		$order->save();
 
 		return array(
@@ -518,23 +520,19 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 		$sessions = $this->get_sessions( $order );
 		$record   = isset( $sessions[ $checkout_id ] ) ? $sessions[ $checkout_id ] : array();
-		$mode     = isset( $record['mode'] ) ? $record['mode'] : $order->get_meta( self::META_MODE );
 
-		try {
-			$session = Bachs_WC_API::get_client( $mode )->make_request( 'checkout-sessions/' . rawurlencode( $checkout_id ), array(), array(), 'GET' );
-		} catch ( Exception $e ) {
-			// Without the status we can't rule out a completed payment, so don't open another session.
-			throw new Exception( sprintf( 'Could not retrieve checkout session %s: %s', esc_html( $checkout_id ), esc_html( $e->getMessage() ) ) );
-		}
-
-		$status          = is_object( $session ) && isset( $session->status ) ? strtolower( (string) $session->status ) : '';
+		// Without the status we can't rule out a completed payment, so a failed lookup throws and
+		// no other session is opened.
+		$session         = $this->fetch_session( $order, $checkout_id );
+		$status          = $this->get_session_status( $session );
 		$state['status'] = $status;
+		$kind            = $this->classify_session_status( $status );
 
-		if ( in_array( $status, self::UNPAID_SESSION_STATUSES, true ) ) {
+		if ( 'unpaid' === $kind ) {
 			return $state;
 		}
 
-		if ( 'open' !== $status ) {
+		if ( 'paid' === $kind ) {
 			$state['action'] = 'paid';
 			return $state;
 		}
@@ -577,6 +575,190 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		}
 		return $record['currency'] === $order->get_currency()
 			&& 0 === Bachs_WC_Helpers::compare_amounts( $record['amount'], $order->get_total(), $order->get_currency() );
+	}
+
+	/**
+	 * Retrieve a checkout session, in the environment it was created in.
+	 *
+	 * @param WC_Order $order
+	 * @param string   $checkout_id
+	 * @return object
+	 *
+	 * @throws Exception When the session can't be retrieved.
+	 */
+	protected function fetch_session( $order, $checkout_id ) {
+
+		$sessions = $this->get_sessions( $order );
+		$mode     = isset( $sessions[ $checkout_id ]['mode'] ) ? $sessions[ $checkout_id ]['mode'] : $this->get_order_mode( $order );
+
+		try {
+			$session = Bachs_WC_API::get_client( $mode )->make_request( 'checkout-sessions/' . rawurlencode( $checkout_id ), array(), array(), 'GET', 15 );
+		} catch ( Exception $e ) {
+			throw new Exception( sprintf( 'Could not retrieve checkout session %s: %s', esc_html( $checkout_id ), esc_html( $e->getMessage() ) ) );
+		}
+
+		if ( ! is_object( $session ) ) {
+			throw new Exception( sprintf( 'Unexpected response for checkout session %s.', esc_html( $checkout_id ) ) );
+		}
+
+		return $session;
+	}
+
+	/**
+	 * @param object $session
+	 * @return string Lower-case status, or '' when missing.
+	 */
+	protected function get_session_status( $session ) {
+		return isset( $session->status ) && is_scalar( $session->status ) ? strtolower( (string) $session->status ) : '';
+	}
+
+	/**
+	 * Group a checkout session status: 'open', 'unpaid' (closed without payment) or 'paid'.
+	 *
+	 * Anything that is neither open nor a known unpaid status is treated as paid, so the plugin
+	 * errs towards not charging the customer twice and not cancelling a paid order.
+	 *
+	 * @param string $status
+	 * @return string
+	 */
+	protected function classify_session_status( $status ) {
+		if ( 'open' === $status ) {
+			return 'open';
+		}
+		if ( in_array( $status, self::UNPAID_SESSION_STATUSES, true ) ) {
+			return 'unpaid';
+		}
+		return 'paid';
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| Return-page and unpaid-order checks
+	|--------------------------------------------------------------------------
+	|
+	| Orders are completed by the collection.succeeded webhook. If the webhook is late or
+	| misconfigured, the order would sit in pending and WooCommerce's Hold stock setting would
+	| cancel it while Bachs is still retrying (for about 80 minutes). These checks ask Bachs for
+	| the checkout session status and, when the customer has paid, move the order to on-hold:
+	| stock stays reduced, the order can't be auto-cancelled, and the webhook then verifies the
+	| payment and completes it as usual. The session status alone never completes an order.
+	*/
+
+	/**
+	 * Order-received page: check the session when the customer comes back from Bachs.
+	 *
+	 * @param int $order_id
+	 */
+	public function check_payment_on_return( $order_id ) {
+
+		$order = wc_get_order( $order_id );
+
+		if ( ! $order || $order->get_payment_method() !== $this->id || ! $order->has_status( array( 'pending', 'failed' ) ) ) {
+			return;
+		}
+
+		// Bachs appends ?checkout_id= to success_url. Only trust IDs this order created.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only lookup, checked against the order's own sessions.
+		$from_url    = isset( $_GET['checkout_id'] ) ? sanitize_text_field( wp_unslash( $_GET['checkout_id'] ) ) : '';
+		$checkout_id = ( '' !== $from_url && isset( $this->get_sessions( $order )[ $from_url ] ) ) ? $from_url : '';
+
+		$this->check_session_payment( $order, $checkout_id, 'return' );
+	}
+
+	/**
+	 * Before WooCommerce cancels an unpaid order (Hold stock), make sure the customer hasn't paid
+	 * and isn't still paying.
+	 *
+	 * @param bool     $cancel Whether WooCommerce will cancel the order.
+	 * @param WC_Order $order
+	 * @return bool
+	 */
+	public function filter_cancel_unpaid_order( $cancel, $order ) {
+
+		if ( ! $cancel || ! $order instanceof WC_Order || $order->get_payment_method() !== $this->id ) {
+			return $cancel;
+		}
+
+		$result = $this->check_session_payment( $order, '', 'cancel' );
+
+		switch ( $result ) {
+			case 'held':
+			case 'open':
+				// Paid (now on hold), or the customer is still on the checkout. Check again next run.
+				return false;
+			case 'error':
+				// Bachs couldn't be reached. Keep the order for a day, then let WooCommerce cancel it.
+				$created = $order->get_date_created();
+				return $created && ( time() - $created->getTimestamp() ) > DAY_IN_SECONDS;
+			default:
+				return $cancel;
+		}
+	}
+
+	/**
+	 * Ask Bachs whether the customer paid on the order's checkout session and, if so, put the
+	 * order on hold until the webhook confirms the payment.
+	 *
+	 * @param WC_Order $order
+	 * @param string   $checkout_id Session to check; defaults to the order's latest session.
+	 * @param string   $context     'return' or 'cancel', for the log.
+	 * @return string 'held', 'open', 'unpaid', 'none' (no session) or 'error'.
+	 */
+	public function check_session_payment( $order, $checkout_id = '', $context = '' ) {
+
+		if ( '' === $checkout_id ) {
+			$checkout_id = (string) $order->get_meta( self::META_CHECKOUT_ID );
+		}
+
+		if ( '' === $checkout_id ) {
+			return 'none';
+		}
+
+		try {
+			$session = $this->fetch_session( $order, $checkout_id );
+		} catch ( Exception $e ) {
+			$this->log( sprintf( 'Payment check (%s) for order #%d failed: %s', $context, $order->get_id(), $e->getMessage() ), 'warning' );
+			return 'error';
+		}
+
+		$status = $this->get_session_status( $session );
+		$kind   = $this->classify_session_status( $status );
+
+		if ( 'paid' !== $kind ) {
+			return $kind;
+		}
+
+		// Re-read in case the webhook completed the order while we were asking Bachs.
+		$fresh = wc_get_order( $order->get_id() );
+		if ( $fresh && ! $fresh->has_status( array( 'pending', 'failed' ) ) ) {
+			return 'held';
+		}
+
+		$this->hold_for_confirmation( $order, $checkout_id, $status );
+
+		$this->log( sprintf( 'Payment check (%s): session %s is %s, order #%d put on hold until the webhook arrives.', $context, $checkout_id, $status, $order->get_id() ), 'warning' );
+
+		return 'held';
+	}
+
+	/**
+	 * Move an order whose checkout session is paid to on-hold, pending the webhook.
+	 *
+	 * @param WC_Order $order
+	 * @param string   $checkout_id
+	 * @param string   $status Session status reported by Bachs.
+	 */
+	protected function hold_for_confirmation( $order, $checkout_id, $status ) {
+		$order->update_meta_data( self::META_AWAITING_WEBHOOK, $checkout_id );
+		$order->update_status(
+			'on-hold',
+			sprintf(
+				/* translators: 1: Bachs checkout ID, 2: session status */
+				__( 'Bachs reports checkout session %1$s as "%2$s", but the payment webhook has not arrived yet. The order is on hold so it isn\'t cancelled; it will complete automatically when Bachs confirms the payment. If it stays on hold, check the webhook URL and signing secret in the Bachs settings, and the payment in your Bachs dashboard.', 'bachs-payment-gateway-for-woocommerce' ),
+				$checkout_id,
+				$status
+			)
+		);
 	}
 
 	/**
@@ -657,7 +839,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$order = wc_get_order( $order_id );
 
 		if ( ! $order ) {
-			return new WP_Error( 'bachs_wc_refund_error', __( 'Order not found.', 'bachs-woocommerce-payment-gateway' ) );
+			return new WP_Error( 'bachs_wc_refund_error', __( 'Order not found.', 'bachs-payment-gateway-for-woocommerce' ) );
 		}
 
 		$charge_id = $order->get_meta( self::META_CHARGE_ID );
@@ -666,7 +848,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		}
 
 		if ( empty( $charge_id ) ) {
-			return new WP_Error( 'bachs_wc_refund_error', __( 'No Bachs charge ID is stored on this order, so it cannot be refunded through Bachs.', 'bachs-woocommerce-payment-gateway' ) );
+			return new WP_Error( 'bachs_wc_refund_error', __( 'No Bachs charge ID is stored on this order, so it cannot be refunded through Bachs.', 'bachs-payment-gateway-for-woocommerce' ) );
 		}
 
 		$previous_refund = (string) $order->get_meta( self::META_REFUND_ID );
@@ -675,7 +857,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				'bachs_wc_refund_error',
 				sprintf(
 					/* translators: %s: Bachs refund ID */
-					__( 'This payment already has a Bachs refund (%s). Bachs allows one refund per payment, so it cannot be refunded again through Bachs.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'This payment already has a Bachs refund (%s). Bachs allows one refund per payment, so it cannot be refunded again through Bachs.', 'bachs-payment-gateway-for-woocommerce' ),
 					$previous_refund
 				)
 			);
@@ -685,7 +867,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$amount   = is_null( $amount ) ? (float) $order->get_total() : (float) $amount;
 
 		if ( $amount <= 0 ) {
-			return new WP_Error( 'bachs_wc_refund_error', __( 'Refund amount must be greater than zero.', 'bachs-woocommerce-payment-gateway' ) );
+			return new WP_Error( 'bachs_wc_refund_error', __( 'Refund amount must be greater than zero.', 'bachs-payment-gateway-for-woocommerce' ) );
 		}
 
 		$is_full = Bachs_WC_Helpers::compare_amounts( $amount, $order->get_total(), $currency ) >= 0;
@@ -703,7 +885,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			$settlement_currency = strtoupper( (string) $order->get_meta( self::META_SETTLEMENT_CURRENCY ) );
 
 			if ( '' === $settlement_currency ) {
-				return new WP_Error( 'bachs_wc_refund_error', __( 'The settlement currency of this Bachs payment is unknown, so a partial refund cannot be sent safely. Refund the full amount, or make the partial refund from your Bachs dashboard.', 'bachs-woocommerce-payment-gateway' ) );
+				return new WP_Error( 'bachs_wc_refund_error', __( 'The settlement currency of this Bachs payment is unknown, so a partial refund cannot be sent safely. Refund the full amount, or make the partial refund from your Bachs dashboard.', 'bachs-payment-gateway-for-woocommerce' ) );
 			}
 
 			if ( $settlement_currency !== $currency ) {
@@ -711,7 +893,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 					'bachs_wc_refund_error',
 					sprintf(
 						/* translators: 1: settlement currency, 2: order currency */
-						__( 'This payment settled in %1$s but the order is in %2$s. Bachs reads partial refund amounts in the settlement currency, so make this partial refund from your Bachs dashboard, or refund the full amount here.', 'bachs-woocommerce-payment-gateway' ),
+						__( 'This payment settled in %1$s but the order is in %2$s. Bachs reads partial refund amounts in the settlement currency, so make this partial refund from your Bachs dashboard, or refund the full amount here.', 'bachs-payment-gateway-for-woocommerce' ),
 						$settlement_currency,
 						$currency
 					)
@@ -739,7 +921,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			$order->add_order_note(
 				sprintf(
 					/* translators: 1: amount, 2: Bachs refund ID */
-					__( 'Bachs refund initiated for %1$s. Refund ID: %2$s. Refunds settle asynchronously and are confirmed by a refund.paid webhook.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'Bachs refund initiated for %1$s. Refund ID: %2$s. Refunds settle asynchronously and are confirmed by a refund.paid webhook.', 'bachs-payment-gateway-for-woocommerce' ),
 					wc_price( $amount, array( 'currency' => $currency ) ),
 					$refund_id
 				)
@@ -893,6 +1075,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$this->maybe_store_customer_id( $order, $data );
 
 		$problem = $this->get_payment_problem( $order, $data );
+		$order->delete_meta_data( self::META_AWAITING_WEBHOOK );
 
 		if ( '' !== $problem ) {
 			if ( '' !== $charge_id ) {
@@ -902,9 +1085,9 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				'on-hold',
 				sprintf(
 					/* translators: 1: problem description, 2: Bachs charge ID */
-					__( 'Bachs payment received but needs review: %1$s Charge ID: %2$s. Check the payment in your Bachs dashboard before fulfilling this order.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'Bachs payment received but needs review: %1$s Charge ID: %2$s. Check the payment in your Bachs dashboard before fulfilling this order.', 'bachs-payment-gateway-for-woocommerce' ),
 					$problem,
-					'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-woocommerce-payment-gateway' )
+					'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' )
 				)
 			);
 			$this->log( sprintf( 'collection.succeeded put order #%d on hold: %s', $order->get_id(), $problem ), 'warning' );
@@ -916,13 +1099,13 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 
 		$note = sprintf(
 			/* translators: 1: amount and currency paid, 2: Bachs charge ID */
-			__( 'Bachs payment of %1$s completed. Charge ID: %2$s', 'bachs-woocommerce-payment-gateway' ),
+			__( 'Bachs payment of %1$s completed. Charge ID: %2$s', 'bachs-payment-gateway-for-woocommerce' ),
 			$this->describe_amount( $data ),
-			'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-woocommerce-payment-gateway' )
+			'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' )
 		);
 
 		if ( isset( $data->status ) && 'OVERPAID' === strtoupper( (string) $data->status ) ) {
-			$note .= ' ' . __( 'The customer overpaid; see the payment in your Bachs dashboard for the extra amount.', 'bachs-woocommerce-payment-gateway' );
+			$note .= ' ' . __( 'The customer overpaid; see the payment in your Bachs dashboard for the extra amount.', 'bachs-payment-gateway-for-woocommerce' );
 		}
 
 		$order->add_order_note( $note );
@@ -945,20 +1128,20 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$status         = isset( $data->status ) ? strtoupper( (string) $data->status ) : '';
 
 		if ( 'ACCEPTED' === $status ) {
-			return __( 'Bachs accepted this payment on terms other than the exact amount requested.', 'bachs-woocommerce-payment-gateway' );
+			return __( 'Bachs accepted this payment on terms other than the exact amount requested.', 'bachs-payment-gateway-for-woocommerce' );
 		}
 
 		$checkout_id = isset( $data->checkout_id ) ? (string) $data->checkout_id : '';
 
 		if ( '' === $checkout_id ) {
-			return __( 'the payment is not linked to a Bachs checkout session.', 'bachs-woocommerce-payment-gateway' );
+			return __( 'the payment is not linked to a Bachs checkout session.', 'bachs-payment-gateway-for-woocommerce' );
 		}
 
 		$sessions = $this->get_sessions( $order );
 
 		if ( ! isset( $sessions[ $checkout_id ] ) ) {
 			/* translators: %s: Bachs checkout ID */
-			return sprintf( __( 'the payment came from checkout session %s, which this order did not create.', 'bachs-woocommerce-payment-gateway' ), $checkout_id );
+			return sprintf( __( 'the payment came from checkout session %s, which this order did not create.', 'bachs-payment-gateway-for-woocommerce' ), $checkout_id );
 		}
 
 		$record = $sessions[ $checkout_id ];
@@ -966,7 +1149,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		if ( ! $this->session_matches_order( $order, $record ) ) {
 			return sprintf(
 				/* translators: 1: session amount, 2: session currency, 3: order total, 4: order currency */
-				__( 'the checkout session was created for %1$s %2$s, but the order total is now %3$s %4$s.', 'bachs-woocommerce-payment-gateway' ),
+				__( 'the checkout session was created for %1$s %2$s, but the order total is now %3$s %4$s.', 'bachs-payment-gateway-for-woocommerce' ),
 				isset( $record['amount'] ) ? $record['amount'] : '?',
 				isset( $record['currency'] ) ? $record['currency'] : '?',
 				Bachs_WC_Helpers::format_amount( $order_total, $order_currency ),
@@ -982,7 +1165,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			if ( Bachs_WC_Helpers::compare_amounts( $data->amount, $order_total, $order_currency ) < 0 ) {
 				return sprintf(
 					/* translators: 1: amount paid, 2: order total, 3: currency */
-					__( 'the customer paid %1$s but the order total is %2$s %3$s.', 'bachs-woocommerce-payment-gateway' ),
+					__( 'the customer paid %1$s but the order total is %2$s %3$s.', 'bachs-payment-gateway-for-woocommerce' ),
 					Bachs_WC_Helpers::format_amount( $data->amount, $order_currency ),
 					Bachs_WC_Helpers::format_amount( $order_total, $order_currency ),
 					$order_currency
@@ -1042,10 +1225,10 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$order->add_order_note(
 			sprintf(
 				/* translators: 1: amount and currency, 2: duplicate charge ID, 3: original charge ID */
-				__( 'Duplicate payment: Bachs received another payment of %1$s (charge %2$s) for this order, which was already paid by charge %3$s. Refund the duplicate charge from your Bachs dashboard.', 'bachs-woocommerce-payment-gateway' ),
+				__( 'Duplicate payment: Bachs received another payment of %1$s (charge %2$s) for this order, which was already paid by charge %3$s. Refund the duplicate charge from your Bachs dashboard.', 'bachs-payment-gateway-for-woocommerce' ),
 				$this->describe_amount( $data ),
 				$charge_id,
-				'' !== $paid_with ? $paid_with : __( 'n/a', 'bachs-woocommerce-payment-gateway' )
+				'' !== $paid_with ? $paid_with : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' )
 			)
 		);
 
@@ -1114,10 +1297,10 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			return;
 		}
 
-		$reason = isset( $data->reason ) && is_scalar( $data->reason ) ? (string) $data->reason : __( 'Payment failed at Bachs.', 'bachs-woocommerce-payment-gateway' );
+		$reason = isset( $data->reason ) && is_scalar( $data->reason ) ? (string) $data->reason : __( 'Payment failed at Bachs.', 'bachs-payment-gateway-for-woocommerce' );
 
 		/* translators: %s: failure reason */
-		$order->update_status( 'failed', sprintf( __( 'Bachs payment failed: %s', 'bachs-woocommerce-payment-gateway' ), $reason ) );
+		$order->update_status( 'failed', sprintf( __( 'Bachs payment failed: %s', 'bachs-payment-gateway-for-woocommerce' ), $reason ) );
 		$this->mark_event_processed( $order, $event );
 	}
 
@@ -1157,12 +1340,12 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			'on-hold',
 			sprintf(
 				/* translators: 1: amount paid, 2: amount due, 3: amount outstanding, 4: currency code, 5: Bachs charge ID */
-				__( 'Bachs payment was short. Paid %1$s of %2$s %4$s, leaving %3$s %4$s outstanding. Charge ID: %5$s. Collect the balance or refund the payment before fulfilling this order.', 'bachs-woocommerce-payment-gateway' ),
+				__( 'Bachs payment was short. Paid %1$s of %2$s %4$s, leaving %3$s %4$s outstanding. Charge ID: %5$s. Collect the balance or refund the payment before fulfilling this order.', 'bachs-payment-gateway-for-woocommerce' ),
 				isset( $data->amount_paid ) && is_scalar( $data->amount_paid ) ? $data->amount_paid : '?',
 				isset( $data->amount_expected ) && is_scalar( $data->amount_expected ) ? $data->amount_expected : '?',
 				isset( $data->amount_remaining ) && is_scalar( $data->amount_remaining ) ? $data->amount_remaining : '?',
 				$currency,
-				'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-woocommerce-payment-gateway' )
+				'' !== $charge_id ? $charge_id : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' )
 			)
 		);
 
@@ -1196,7 +1379,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$order->add_order_note(
 			sprintf(
 				/* translators: %s: Bachs checkout ID */
-				__( 'Bachs checkout session %s expired without payment. The customer can still pay from the order payment page, which starts a new session.', 'bachs-woocommerce-payment-gateway' ),
+				__( 'Bachs checkout session %s expired without payment. The customer can still pay from the order payment page, which starts a new session.', 'bachs-payment-gateway-for-woocommerce' ),
 				isset( $data->checkout_id ) && is_scalar( $data->checkout_id ) ? $data->checkout_id : ''
 			)
 		);
@@ -1225,9 +1408,9 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$order->add_order_note(
 			sprintf(
 				/* translators: 1: refunded amount, 2: Bachs refund ID */
-				__( 'Bachs refund settled. Amount refunded: %1$s. Refund ID: %2$s', 'bachs-woocommerce-payment-gateway' ),
-				'' !== $refunded_amount ? $refunded_amount : __( 'n/a', 'bachs-woocommerce-payment-gateway' ),
-				isset( $data->refund_id ) && is_scalar( $data->refund_id ) ? $data->refund_id : __( 'n/a', 'bachs-woocommerce-payment-gateway' )
+				__( 'Bachs refund settled. Amount refunded: %1$s. Refund ID: %2$s', 'bachs-payment-gateway-for-woocommerce' ),
+				'' !== $refunded_amount ? $refunded_amount : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' ),
+				isset( $data->refund_id ) && is_scalar( $data->refund_id ) ? $data->refund_id : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' )
 			)
 		);
 
@@ -1256,10 +1439,10 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		$order->add_order_note(
 			sprintf(
 				/* translators: 1: Bachs refund ID, 2: requested amount, 3: failure reason */
-				__( 'Bachs refund %1$s for %2$s failed, so the customer has not been refunded, although this order still shows the refund. Reason: %3$s. Delete the refund from this order and refund again, or refund the customer another way.', 'bachs-woocommerce-payment-gateway' ),
+				__( 'Bachs refund %1$s for %2$s failed, so the customer has not been refunded, although this order still shows the refund. Reason: %3$s. Delete the refund from this order and refund again, or refund the customer another way.', 'bachs-payment-gateway-for-woocommerce' ),
 				isset( $data->refund_id ) && is_scalar( $data->refund_id ) ? $data->refund_id : '',
-				isset( $data->requested_amount ) && is_scalar( $data->requested_amount ) ? $data->requested_amount : __( 'n/a', 'bachs-woocommerce-payment-gateway' ),
-				! empty( $data->reason ) && is_scalar( $data->reason ) ? $data->reason : __( 'not given', 'bachs-woocommerce-payment-gateway' )
+				isset( $data->requested_amount ) && is_scalar( $data->requested_amount ) ? $data->requested_amount : __( 'n/a', 'bachs-payment-gateway-for-woocommerce' ),
+				! empty( $data->reason ) && is_scalar( $data->reason ) ? $data->reason : __( 'not given', 'bachs-payment-gateway-for-woocommerce' )
 			)
 		);
 
@@ -1390,15 +1573,15 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 		echo '<div id="bachs-wc-popup">';
 
 		if ( empty( $checkout_url ) ) {
-			echo '<p>' . esc_html__( 'We could not load the Bachs checkout. Please try again.', 'bachs-woocommerce-payment-gateway' ) . '</p>';
+			echo '<p>' . esc_html__( 'We could not load the Bachs checkout. Please try again.', 'bachs-payment-gateway-for-woocommerce' ) . '</p>';
 		} else {
 			echo '<div class="bachs-wc-spinner" aria-hidden="true"></div>';
-			echo '<p>' . esc_html__( 'Your secure Bachs checkout is opening. If it does not appear, use the button below.', 'bachs-woocommerce-payment-gateway' ) . '</p>';
+			echo '<p>' . esc_html__( 'Your secure Bachs checkout is opening. If it does not appear, use the button below.', 'bachs-payment-gateway-for-woocommerce' ) . '</p>';
 			echo '<p id="bachs-wc-status" role="status" aria-live="polite"></p>';
-			echo '<p><button type="button" id="bachs-wc-pay" class="button alt">' . esc_html__( 'Pay with Bachs', 'bachs-woocommerce-payment-gateway' ) . '</button></p>';
+			echo '<p><button type="button" id="bachs-wc-pay" class="button alt">' . esc_html__( 'Pay with Bachs', 'bachs-payment-gateway-for-woocommerce' ) . '</button></p>';
 		}
 
-		echo '<p><a class="bachs-wc-cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . esc_html__( 'Cancel order &amp; restore cart', 'bachs-woocommerce-payment-gateway' ) . '</a></p>';
+		echo '<p><a class="bachs-wc-cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . esc_html__( 'Cancel order &amp; restore cart', 'bachs-payment-gateway-for-woocommerce' ) . '</a></p>';
 		echo '</div>';
 	}
 
@@ -1423,7 +1606,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			return;
 		}
 
-		echo '<p class="bachs-wc-cancel-order"><a class="bachs-wc-cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . esc_html__( 'Cancel order &amp; restore cart', 'bachs-woocommerce-payment-gateway' ) . '</a></p>';
+		echo '<p class="bachs-wc-cancel-order"><a class="bachs-wc-cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . esc_html__( 'Cancel order &amp; restore cart', 'bachs-payment-gateway-for-woocommerce' ) . '</a></p>';
 	}
 
 	/**
@@ -1486,11 +1669,11 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				'retry_url'    => $order->get_checkout_payment_url( false ),
 				'debug'        => $this->debug ? '1' : '0',
 				'i18n'         => array(
-					'closed'  => __( 'Checkout closed. Click "Pay with Bachs" to try again.', 'bachs-woocommerce-payment-gateway' ),
-					'failed'  => __( 'The payment failed. Click "Pay with Bachs" to try again.', 'bachs-woocommerce-payment-gateway' ),
-					'expired' => __( 'This checkout session expired. Taking you back to start a new one…', 'bachs-woocommerce-payment-gateway' ),
-					'blocked' => __( 'The Bachs checkout could not load. Please disable any ad/script blocker for this page and try again.', 'bachs-woocommerce-payment-gateway' ),
-					'error'   => __( 'Something went wrong opening the checkout. Please try again, or cancel to start over.', 'bachs-woocommerce-payment-gateway' ),
+					'closed'  => __( 'Checkout closed. Click "Pay with Bachs" to try again.', 'bachs-payment-gateway-for-woocommerce' ),
+					'failed'  => __( 'The payment failed. Click "Pay with Bachs" to try again.', 'bachs-payment-gateway-for-woocommerce' ),
+					'expired' => __( 'This checkout session expired. Taking you back to start a new one…', 'bachs-payment-gateway-for-woocommerce' ),
+					'blocked' => __( 'The Bachs checkout could not load. Please disable any ad/script blocker for this page and try again.', 'bachs-payment-gateway-for-woocommerce' ),
+					'error'   => __( 'Something went wrong opening the checkout. Please try again, or cancel to start over.', 'bachs-payment-gateway-for-woocommerce' ),
 				),
 			)
 		);
@@ -1521,7 +1704,7 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 			return;
 		}
 		if ( function_exists( 'wc_get_logger' ) ) {
-			wc_get_logger()->log( $level, $message, array( 'source' => 'bachs-woocommerce-payment-gateway' ) );
+			wc_get_logger()->log( $level, $message, array( 'source' => 'bachs-payment-gateway-for-woocommerce' ) );
 		}
 	}
 }

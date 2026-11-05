@@ -2,7 +2,7 @@
 /**
  * WooCommerce Blocks (checkout blocks) integration for the Bachs gateway.
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,7 +52,7 @@ final class Bachs_WC_Blocks_Support extends AbstractPaymentMethodType {
 		);
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'bachs-wc-blocks', 'bachs-woocommerce-payment-gateway', BACHS_WC_PATH . '/languages' );
+			wp_set_script_translations( 'bachs-wc-blocks', 'bachs-payment-gateway-for-woocommerce', BACHS_WC_PATH . '/languages' );
 		}
 
 		return array( 'bachs-wc-blocks' );
@@ -66,7 +66,7 @@ final class Bachs_WC_Blocks_Support extends AbstractPaymentMethodType {
 		$gateway  = isset( $gateways['bachs'] ) ? $gateways['bachs'] : null;
 
 		return array(
-			'title'       => $gateway ? $gateway->get_title() : $this->get_setting( 'title', __( 'Bachs', 'bachs-woocommerce-payment-gateway' ) ),
+			'title'       => $gateway ? $gateway->get_title() : $this->get_setting( 'title', __( 'Bachs', 'bachs-payment-gateway-for-woocommerce' ) ),
 			'description' => $gateway ? $gateway->get_description() : $this->get_setting( 'description' ),
 			'supports'    => $gateway ? array_filter( $gateway->supports, array( $gateway, 'supports' ) ) : array( 'products', 'refunds' ),
 			'icon'        => BACHS_WC_URL . '/assets/images/bachs-icon.png',

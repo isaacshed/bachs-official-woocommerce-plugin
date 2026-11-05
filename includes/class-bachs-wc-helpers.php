@@ -2,7 +2,7 @@
 /**
  * Shared helpers: settings, environments, currencies, amounts and webhook signatures.
  *
- * @package Bachs_WooCommerce_Payment_Gateway
+ * @package Bachs_Payment_Gateway_For_WooCommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,9 +33,9 @@ class Bachs_WC_Helpers {
 	const FALLBACK_CURRENCIES = array( 'USD', 'NGN', 'GHS', 'KES', 'MWK', 'RWF', 'TZS', 'UGX', 'XAF', 'XOF', 'ZMW' );
 
 	/**
-	 * ISO 4217 currencies with no minor unit. Every other currency uses two decimals.
+	 * Decimal places for every amount sent to Bachs, in every currency ("25000.00").
 	 */
-	const ZERO_DECIMAL_CURRENCIES = array( 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF' );
+	const AMOUNT_DECIMALS = 2;
 
 	/**
 	 * @return array The gateway settings option.
@@ -208,18 +208,17 @@ class Bachs_WC_Helpers {
 	*/
 
 	/**
-	 * Number of decimals Bachs expects for a currency.
+	 * Number of decimals sent to Bachs for a currency: two for every currency, filterable.
 	 *
 	 * @param string $currency
 	 * @return int
 	 */
 	public static function currency_decimals( $currency ) {
-		$decimals = in_array( strtoupper( (string) $currency ), self::ZERO_DECIMAL_CURRENCIES, true ) ? 0 : 2;
-		return (int) apply_filters( 'bachs_wc_currency_decimals', $decimals, $currency );
+		return (int) apply_filters( 'bachs_wc_currency_decimals', self::AMOUNT_DECIMALS, $currency );
 	}
 
 	/**
-	 * Bachs expects money as a decimal string at the currency's precision, e.g. "29.00".
+	 * Bachs expects money as a decimal string, e.g. "29.00" or "25000.00".
 	 *
 	 * @param mixed  $amount
 	 * @param string $currency

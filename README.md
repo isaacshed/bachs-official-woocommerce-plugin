@@ -1,4 +1,4 @@
-# Bachs WooCommerce Payment Gateway
+# Bachs Payment Gateway for WooCommerce
 
 The official [Bachs](https://bachs.io) payment gateway for WooCommerce.
 
@@ -10,6 +10,7 @@ The WordPress.org listing text, installation steps and FAQ are in [`readme.txt`]
 
 - At checkout the plugin creates a Bachs checkout session priced at the order total (`pricing`, with no Bachs products) and sends the customer to the hosted checkout, by redirect or in an on-site popup.
 - Orders complete on the signed `collection.succeeded` webhook, after the payment is checked against the order. A payment that doesn't match is put on hold with a note.
+- When the customer lands on the order-received page, and before WooCommerce's Hold stock setting cancels an unpaid order, the plugin asks Bachs for the checkout session status. A paid session moves the order to on-hold (stock stays reduced, no auto-cancel) until the webhook confirms the payment; the session status alone never completes an order.
 - A customer who returns to pay an order whose checkout is already complete isn't given a second checkout. A payment received for an order that is already paid is flagged on the order for refund.
 - Refunds go through `POST /v1/refunds`. Partial refunds are only sent when the payment settled in the order currency.
 
@@ -27,7 +28,7 @@ The tests use lightweight WordPress and WooCommerce stand-ins (`tests/bootstrap.
 
 | Path | Purpose |
 | --- | --- |
-| `bachs-woocommerce-payment-gateway.php` | Plugin bootstrap, admin notices |
+| `bachs-payment-gateway-for-woocommerce.php` | Plugin bootstrap, admin notices |
 | `includes/class-bachs-wc-gateway.php` | Payment, webhook and refund handling |
 | `includes/class-bachs-wc-helpers.php` | Settings, currencies, amounts, webhook signatures |
 | `includes/class-bachs-wc-api.php` | Bachs REST API client |
