@@ -139,7 +139,7 @@ $gw    = setup();
 $order = make_order();
 $order->meta['_bachs_checkout_id'] = 'chk_1';
 $order->meta['_bachs_sessions']    = array( 'chk_1' => array( 'amount' => '100.00', 'currency' => 'USD', 'mode' => 'sandbox' ) );
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 $result = $gw->process_payment( 1 );
 check( 'completed session: no new session', 1 === count( bachs_test_requests() ) );
 check( 'completed session: sent to order-received', false !== strpos( $result['redirect'], 'order-received' ) );
@@ -186,14 +186,14 @@ function pending_with_session( $created = null ) {
 }
 
 list( $gw, $order ) = pending_with_session();
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 $gw->check_payment_on_return( 1 );
 check( 'return: paid session puts order on hold', 'on-hold' === $order->status && 0 === $order->completed );
 check( 'return: checks the latest session', false !== strpos( bachs_test_requests()[0]['url'], 'checkout-sessions/chk_2' ) );
 
 list( $gw, $order ) = pending_with_session();
 $_GET['checkout_id'] = 'chk_1';
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 $gw->check_payment_on_return( 1 );
 check( 'return: uses checkout_id from the URL when the order created it', false !== strpos( bachs_test_requests()[0]['url'], 'checkout-sessions/chk_1' ) );
 
@@ -216,7 +216,7 @@ $gw->check_payment_on_return( 1 );
 check( 'return: expired session leaves order pending', 'pending' === $order->status );
 
 list( $gw, $order ) = pending_with_session();
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 check( 'cancel: paid session prevents cancellation', false === $gw->filter_cancel_unpaid_order( true, $order ) && 'on-hold' === $order->status );
 
 list( $gw, $order ) = pending_with_session();
@@ -244,36 +244,28 @@ check( 'cancel: other gateways untouched', true === $gw->filter_cancel_unpaid_or
 
 // Held by the return check, then the webhook arrives and completes the order.
 list( $gw, $order ) = pending_with_session();
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 $gw->check_payment_on_return( 1 );
 list( $data, $evt ) = event( 'evt_1', 'collection.succeeded', succeeded_data( array( 'checkout_id' => 'chk_2' ) ) );
 $gw->handle_collection_succeeded( $data, $evt );
 check( 'held order completes when the webhook arrives', 1 === $order->completed && 'processing' === $order->status && ! isset( $order->meta['_bachs_awaiting_webhook'] ) );
 
 list( $gw, $order ) = pending_with_session();
-bachs_test_queue_response( 200, array( 'status' => 'succeeded' ) );
+bachs_test_queue_response( 200, array( 'status' => 'completed' ) );
 $gw->check_payment_on_return( 1 );
 list( $data, $evt ) = event( 'evt_1', 'collection.failed', array( 'checkout_id' => 'chk_2', 'metadata' => (object) array( 'order_id' => '1' ) ) );
 $gw->handle_collection_failed( $data, $evt );
 check( 'held order is not failed by collection.failed', 'on-hold' === $order->status );
 
-// Every Bachs checkout status, as shown in the dashboard, mapped for the cancel check.
+// Every checkout session status the Bachs API returns.
 $expected = array(
-	'Open'               => 'open',
-	'Incomplete'         => 'open',
-	'Succeeded'          => 'held',
-	'Accepted'           => 'held',
-	'Underpaid'          => 'held',
-	'Overpaid'           => 'held',
-	'Partially refunded' => 'held',
-	'Failed'             => 'unpaid',
-	'Expired'            => 'unpaid',
-	'Cancelled'          => 'unpaid',
-	'Refunded'           => 'unpaid',
-	'Auto refunded'      => 'unpaid',
+	'open'      => 'open',
+	'completed' => 'held',
+	'expired'   => 'unpaid',
+	'cancelled' => 'unpaid',
 );
-foreach ( $expected as $label => $want ) {
-	foreach ( array( $label, strtolower( str_replace( ' ', '_', $label ) ), strtoupper( str_replace( ' ', '_', $label ) ) ) as $sent ) {
+foreach ( $expected as $value => $want ) {
+	foreach ( array( $value, strtoupper( $value ), ucfirst( $value ) ) as $sent ) {
 		list( $gw, $order ) = pending_with_session();
 		bachs_test_queue_response( 200, array( 'status' => $sent ) );
 		$got = $gw->check_session_payment( $order, '', 'test' );
@@ -284,30 +276,11 @@ foreach ( $expected as $label => $want ) {
 list( $gw, $order ) = pending_with_session();
 bachs_test_queue_response( 200, array( 'status' => 'something_new' ) );
 check( 'unknown status is treated as paid', 'held' === $gw->check_session_payment( $order, '', 'test' ) );
-check( 'unknown status is logged', false !== strpos( end( $GLOBALS['bachs_test']['logs'] )[1], 'something_new' ) || (bool) array_filter( $GLOBALS['bachs_test']['logs'], function ( $l ) { return false !== strpos( $l[1], 'Unknown Bachs checkout status' ); } ) );
+check( 'unknown status is logged', (bool) array_filter( $GLOBALS['bachs_test']['logs'], function ( $l ) { return false !== strpos( $l[1], 'Unknown Bachs checkout status' ); } ) );
 
 list( $gw, $order ) = pending_with_session( time() - 2 * 86400 );
-bachs_test_queue_response( 200, array( 'status' => 'incomplete' ) );
-check( 'cancel: open/incomplete for over a day allows cancellation', true === $gw->filter_cancel_unpaid_order( true, $order ) );
-
-// A customer retrying on an incomplete session is sent back to it, not given a new one.
-$gw    = setup();
-$order = make_order();
-$order->meta['_bachs_checkout_id'] = 'chk_1';
-$order->meta['_bachs_sessions']    = array( 'chk_1' => array( 'amount' => '100.00', 'currency' => 'USD', 'mode' => 'sandbox' ) );
-bachs_test_queue_response( 200, array( 'status' => 'Incomplete', 'checkout_url' => 'https://checkout.bachs.io/c/chk_1', 'expires_at' => gmdate( 'c', time() + 3600 ) ) );
-$result = $gw->process_payment( 1 );
-check( 'incomplete session reused on retry', 'https://checkout.bachs.io/c/chk_1' === $result['redirect'] && 1 === count( bachs_test_requests() ) );
-
-// Auto refunded (e.g. paid after expiry and returned): customer can pay again.
-$gw    = setup();
-$order = make_order();
-$order->meta['_bachs_checkout_id']       = 'chk_1';
-$order->meta['_bachs_checkout_attempts'] = 1;
-bachs_test_queue_response( 200, array( 'status' => 'auto_refunded' ) );
-bachs_test_queue_response( 201, array( 'checkout_id' => 'chk_2', 'checkout_url' => 'https://checkout.bachs.io/c/chk_2' ) );
-$result = $gw->process_payment( 1 );
-check( 'auto-refunded session: new checkout created', 'https://checkout.bachs.io/c/chk_2' === $result['redirect'] );
+bachs_test_queue_response( 200, array( 'status' => 'open' ) );
+check( 'cancel: session open for over a day allows cancellation', true === $gw->filter_cancel_unpaid_order( true, $order ) );
 
 // --- collection.succeeded ------------------------------------------------------------
 

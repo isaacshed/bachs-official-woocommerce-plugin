@@ -41,25 +41,25 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 	const MAX_STORED_EVENT_IDS = 50;
 
 	/*
-	 * Bachs checkout statuses (the same in sandbox and live), normalised to lower_snake_case.
-	 * A status in none of these lists is treated as paid, so the plugin errs towards holding
-	 * an order rather than cancelling it or charging the customer twice.
+	 * Checkout session statuses from the Bachs API (the same in sandbox and live):
+	 * open, completed, expired, cancelled. A status outside these lists is treated as paid, so
+	 * the plugin errs towards holding an order rather than cancelling it or charging twice.
 	 */
 
 	/**
-	 * The customer can still pay, or a payment is in progress.
+	 * Awaiting customer payment; every new session starts here.
 	 */
-	const OPEN_SESSION_STATUSES = array( 'open', 'incomplete' );
+	const OPEN_SESSION_STATUSES = array( 'open' );
 
 	/**
-	 * Closed with no money kept: never paid, or paid and returned in full.
+	 * Terminal without payment: the window elapsed, or the session was cancelled.
 	 */
-	const UNPAID_SESSION_STATUSES = array( 'expired', 'cancelled', 'canceled', 'failed', 'refunded', 'auto_refunded' );
+	const UNPAID_SESSION_STATUSES = array( 'expired', 'cancelled', 'canceled' );
 
 	/**
-	 * Money was received and kept, in full or in part.
+	 * Terminal with payment succeeded.
 	 */
-	const PAID_SESSION_STATUSES = array( 'succeeded', 'accepted', 'overpaid', 'underpaid', 'partially_refunded' );
+	const PAID_SESSION_STATUSES = array( 'completed' );
 
 	/**
 	 * @var bool
@@ -706,8 +706,8 @@ class Bachs_WC_Gateway extends WC_Payment_Gateway {
 				return false;
 			case 'open':
 			case 'error':
-				// Still paying (or incomplete), or Bachs couldn't be reached. Keep the order for a
-				// day, then let WooCommerce cancel it, so an abandoned checkout can't hold stock forever.
+				// Still on the checkout, or Bachs couldn't be reached. Keep the order for up to a
+				// day, then let WooCommerce cancel it, so a stuck session can't hold stock forever.
 				$created = $order->get_date_created();
 				return $created && ( time() - $created->getTimestamp() ) > DAY_IN_SECONDS;
 			default:
