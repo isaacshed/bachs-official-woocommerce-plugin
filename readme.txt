@@ -18,7 +18,7 @@ Bachs Payment Gateway for WooCommerce lets your store accept payments through [B
 
 * **Hosted checkout redirect or on-site popup** — choose whether customers are redirected to the Bachs hosted checkout page or pay in a Bachs modal without leaving your store. No card data ever touches your server either way.
 * **Multiple payment methods** — cards, bank transfer, mobile money, and crypto stablecoins (USDT, USDC), all handled on the Bachs checkout.
-* **Sell in USD or NGN, get paid across Africa** — price your store in USD or NGN and, with Bachs Adaptive Pricing enabled, customers can pay in their own local currency (NGN, GHS, KES, UGX, TZS, XAF, XOF, ZMW, RWF and more). Bachs settles to you in USD or NGN.
+* **Sell in USD or NGN, get paid across Africa** — price your store in USD or NGN and, with Bachs Adaptive Pricing enabled, customers can pay in their own local currency (NGN, GHS, KES, UGX, TZS, XAF, XOF, ZMW, RWF and more). Your store can also be priced directly in GHS, KES, MWK, RWF, TZS, UGX, XAF, XOF or ZMW. Bachs settles to you in USD or NGN.
 * **Webhook-verified fulfilment** — orders complete on the `collection.succeeded` event, with signature verification, not on the browser redirect.
 * **Failed, expired and short payments** — failed payments mark the order failed, short payments put it on hold for you to review, and customers whose checkout expired can pay again or cancel from the order payment page.
 * **Refunds** — issue a refund straight from the WooCommerce order screen.
@@ -54,7 +54,9 @@ Bachs Payment Gateway for WooCommerce lets your store accept payments through [B
 
 = Which currencies are supported? =
 
-Set your WooCommerce store currency to USD or NGN — these are the currencies Bachs prices and settles in. Your customers are not limited to those, though: with Adaptive Pricing enabled in your Bachs dashboard, shoppers across Africa can pay in their own local currency (such as GHS, KES, UGX, TZS, XAF, XOF, ZMW and RWF), or with cards, bank transfer, mobile money, or crypto stablecoins (USDT, USDC), all on the Bachs checkout. Bachs converts and settles the funds to your balance in USD or NGN.
+We recommend setting your WooCommerce store currency to USD or NGN — these are the currencies Bachs settles in. Your customers are not limited to those, though: with Adaptive Pricing enabled in your Bachs dashboard, shoppers across Africa can pay in their own local currency (such as GHS, KES, UGX, TZS, XAF, XOF, ZMW and RWF), or with cards, bank transfer, mobile money, or crypto stablecoins (USDT, USDC), all on the Bachs checkout. Bachs converts and settles the funds to your balance in USD or NGN.
+
+The plugin also accepts GHS, KES, MWK, RWF, TZS, UGX, XAF, XOF and ZMW as the store currency, and keeps this list up to date from Bachs. If your store currency isn't supported, an admin notice tells you and Bachs is hidden at checkout. If your store currency differs from the currency your payments settle in, see the partial refunds question below.
 
 = Do I need to configure webhooks? =
 
@@ -68,9 +70,24 @@ Under Checkout type you can choose Redirect (the customer is sent to the Bachs h
 
 Orders complete when Bachs delivers the signed `collection.succeeded` webhook. Confirm your webhook URL and signing secret are set correctly, and that your site is reachable from the internet.
 
+= Why is my order on hold? =
+
+The plugin puts a Bachs order on hold, with an order note explaining why, in two situations:
+
+* **The payment needs review.** Every successful payment is checked against the order before the order is completed. The order is held when the customer paid less than the order total, the payment came from a checkout this order didn't create, the order total changed after the customer started paying, Bachs accepted the payment on terms other than the exact amount, or the customer underpaid. Check the payment in your Bachs dashboard, then complete the order, collect the balance, or refund it.
+* **The customer paid but the webhook hasn't arrived yet.** When the customer returns to your store, and before WooCommerce cancels unpaid orders (the Hold stock setting), the plugin asks Bachs whether the checkout was paid. If it was, the order is held so it isn't cancelled, and it completes automatically when the `collection.succeeded` webhook arrives. If orders stay on hold for this reason, check your webhook URL and signing secret.
+
+On-hold orders keep their stock reserved and are never cancelled automatically.
+
 = Can I refund a payment? =
 
 Yes, from the WooCommerce order screen. Note that Bachs allows a single refund per charge, so once a charge has been refunded (fully or partially) a further refund through Bachs is not possible.
+
+= Why can't I make a partial refund from WooCommerce? =
+
+Bachs reads a partial refund amount in the currency the payment settled in, which can differ from your order currency. For example, an order priced in NGN may settle to your balance in USD if you don't hold NGN. Sending the WooCommerce amount as-is would refund the wrong amount, so when a payment settled in a different currency from the order, the plugin blocks the partial refund and shows a message asking you to make it from your Bachs dashboard instead.
+
+Full refunds always work from WooCommerce, because Bachs refunds the whole payment without needing an amount. Partial refunds work from WooCommerce when the payment settled in the order currency.
 
 = Does it support subscriptions? =
 
