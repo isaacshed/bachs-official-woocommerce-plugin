@@ -1,0 +1,42 @@
+# Bachs WooCommerce Payment Gateway
+
+The official [Bachs](https://bachs.io) payment gateway for WooCommerce.
+
+Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies.
+
+The WordPress.org listing text, installation steps and FAQ are in [`readme.txt`](readme.txt).
+
+## How it works
+
+- At checkout the plugin creates a Bachs checkout session priced at the order total (`pricing`, with no Bachs products) and sends the customer to the hosted checkout, by redirect or in an on-site popup.
+- Orders complete on the signed `collection.succeeded` webhook, after the payment is checked against the order. A payment that doesn't match is put on hold with a note.
+- A customer who returns to pay an order whose checkout is already complete isn't given a second checkout. A payment received for an order that is already paid is flagged on the order for refund.
+- Refunds go through `POST /v1/refunds`. Partial refunds are only sent when the payment settled in the order currency.
+
+## Development
+
+Requirements: PHP 7.4+.
+
+```bash
+php tests/run.php
+```
+
+The tests use lightweight WordPress and WooCommerce stand-ins (`tests/bootstrap.php`) and need no WordPress install. They run on every push via GitHub Actions.
+
+### Layout
+
+| Path | Purpose |
+| --- | --- |
+| `bachs-woocommerce-payment-gateway.php` | Plugin bootstrap, admin notices |
+| `includes/class-bachs-wc-gateway.php` | Payment, webhook and refund handling |
+| `includes/class-bachs-wc-helpers.php` | Settings, currencies, amounts, webhook signatures |
+| `includes/class-bachs-wc-api.php` | Bachs REST API client |
+| `includes/class-bachs-wc-blocks-support.php` | Block checkout integration |
+| `assets/` | Checkout JS, CSS and images |
+| `languages/` | Translation template |
+
+Files listed in `.distignore` are left out of the release zip.
+
+## License
+
+GPL-2.0-or-later. See [LICENSE](LICENSE).

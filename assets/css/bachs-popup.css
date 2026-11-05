@@ -1,0 +1,56 @@
+/* Bachs popup order-pay ("receipt") page: a tidy loading screen behind the modal. */
+#bachs-wc-popup {
+	max-width: 520px;
+	margin: 2em auto;
+	text-align: center;
+}
+
+#bachs-wc-popup .bachs-wc-spinner {
+	width: 42px;
+	height: 42px;
+	margin: 1.5em auto;
+	border: 3px solid rgba( 17, 17, 17, 0.15 );
+	border-top-color: #111;
+	border-radius: 50%;
+	animation: bachs-wc-spin 0.8s linear infinite;
+}
+
+@keyframes bachs-wc-spin {
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	#bachs-wc-popup .bachs-wc-spinner {
+		animation: none;
+	}
+}
+
+#bachs-wc-popup #bachs-wc-pay {
+	display: inline-block;
+	padding: 0.8em 1.8em;
+	background: #111;
+	color: #fff;
+	border: 0;
+	border-radius: 6px;
+	font-size: 1rem;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+#bachs-wc-popup #bachs-wc-pay:hover,
+#bachs-wc-popup #bachs-wc-pay:focus {
+	opacity: 0.9;
+}
+
+#bachs-wc-popup #bachs-wc-status:not(:empty) {
+	margin: 0.5em auto;
+	color: #b00020;
+}
+
+#bachs-wc-popup .bachs-wc-cancel {
+	display: inline-block;
+	margin-top: 1em;
+	font-size: 0.9em;
+}

@@ -1,0 +1,333 @@
+# Copyright (C) 2026 Bachs
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Bachs WooCommerce Payment Gateway 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/bachs-woocommerce-payment-gateway\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-05T21:04:59+00:00\n"
+"X-Domain: bachs-woocommerce-payment-gateway\n"
+
+#: assets/js/blocks/bachs-wc-blocks.js:12 includes/class-bachs-wc-gateway.php:67 includes/class-bachs-wc-gateway.php:158 includes/class-bachs-wc-blocks-support.php:69
+msgid "Bachs"
+msgstr ""
+
+#: bachs-woocommerce-payment-gateway.php:105
+msgid "Settings"
+msgstr ""
+
+#. translators: %s: WooCommerce link
+#: bachs-woocommerce-payment-gateway.php:122
+#, php-format
+msgid "Bachs WooCommerce Payment Gateway requires WooCommerce to be installed and active. You can download %s here."
+msgstr ""
+
+#. translators: 1: store currency code, 2: comma-separated list of supported currency codes
+#: bachs-woocommerce-payment-gateway.php:148
+#, php-format
+msgid "<strong>Bachs is not available at checkout</strong> because your store currency (%1$s) is not supported by Bachs. Supported currencies: %2$s. Change it under WooCommerce → Settings → General."
+msgstr ""
+
+#. translators: %s: settings URL
+#: bachs-woocommerce-payment-gateway.php:157
+#, php-format
+msgid "Bachs is enabled but no API key is set for the current mode. Add your keys <a href=\"%s\">here</a>."
+msgstr ""
+
+#. translators: %s: settings URL
+#: bachs-woocommerce-payment-gateway.php:162
+#, php-format
+msgid "Bachs is in <strong>test mode</strong>. Disable it <a href=\"%s\">here</a> when you are ready to accept live payments."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:68
+msgid "Bachs for WooCommerce allows your WooCommerce store to accept secure payments from multiple local and global payment channels and currencies. Customers pay on the Bachs hosted checkout, by redirect or in an on-site popup."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:149
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:150
+msgid "Enable Bachs"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:155
+msgid "Title"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:157
+msgid "Payment method title shown to the customer during checkout."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:162
+msgid "Description"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:164
+msgid "Payment method description shown to the customer during checkout."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:165
+msgid "Pay securely with Bachs using your preferred local or global payment method and currency."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:169
+msgid "Checkout type"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:171
+msgid "Redirect sends the customer to the Bachs hosted checkout page. Popup opens the Bachs checkout in a modal on your site (the customer stays on your store)."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:175
+msgid "Redirect (hosted checkout page)"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:176
+msgid "Popup (on-site modal)"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:180
+msgid "Test mode"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:181
+msgid "Enable test (sandbox) mode"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:183
+msgid "Uses the Bachs sandbox environment and your sandbox keys. Uncheck to accept live payments."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:188
+msgid "Sandbox API Key"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:190
+msgid "Your Bachs sandbox API key (starts with sk_sandbox_). Find it under Developer → API keys in your Bachs dashboard."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:195
+msgid "Sandbox Webhook Signing Secret"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:197
+msgid "The signing secret for your sandbox webhook endpoint, from the Bachs developer portal."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:202
+msgid "Live API Key"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:204
+msgid "Your Bachs live API key (starts with sk_live_). Find it under Developer → API keys in your Bachs dashboard."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:209
+msgid "Live Webhook Signing Secret"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:211
+msgid "The signing secret for your live webhook endpoint, from the Bachs developer portal."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:216
+msgid "Webhook URL"
+msgstr ""
+
+#. translators: 1: comma-separated list of webhook event names, 2: opening link tag, 3: closing link tag
+#: includes/class-bachs-wc-gateway.php:220
+#, php-format
+msgid "Add this URL as a webhook endpoint in your %2$sBachs developer portal%3$s and subscribe to these events: %1$s."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:227
+msgid "Debug log"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:228
+msgid "Enable logging"
+msgstr ""
+
+#. translators: %s: log location
+#: includes/class-bachs-wc-gateway.php:232
+#, php-format
+msgid "Log gateway events to %s. Errors are always logged."
+msgstr ""
+
+#. translators: %s: currency code
+#: includes/class-bachs-wc-gateway.php:326
+#, php-format
+msgid "Bachs does not support the %s currency."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:376
+msgid "Unable to start the Bachs payment. Please try again."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:483
+msgid "Awaiting Bachs payment."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:660
+msgid "Order not found."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:669
+msgid "No Bachs charge ID is stored on this order, so it cannot be refunded through Bachs."
+msgstr ""
+
+#. translators: %s: Bachs refund ID
+#: includes/class-bachs-wc-gateway.php:678
+#, php-format
+msgid "This payment already has a Bachs refund (%s). Bachs allows one refund per payment, so it cannot be refunded again through Bachs."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:688
+msgid "Refund amount must be greater than zero."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:706
+msgid "The settlement currency of this Bachs payment is unknown, so a partial refund cannot be sent safely. Refund the full amount, or make the partial refund from your Bachs dashboard."
+msgstr ""
+
+#. translators: 1: settlement currency, 2: order currency
+#: includes/class-bachs-wc-gateway.php:714
+#, php-format
+msgid "This payment settled in %1$s but the order is in %2$s. Bachs reads partial refund amounts in the settlement currency, so make this partial refund from your Bachs dashboard, or refund the full amount here."
+msgstr ""
+
+#. translators: 1: amount, 2: Bachs refund ID
+#: includes/class-bachs-wc-gateway.php:742
+#, php-format
+msgid "Bachs refund initiated for %1$s. Refund ID: %2$s. Refunds settle asynchronously and are confirmed by a refund.paid webhook."
+msgstr ""
+
+#. translators: 1: problem description, 2: Bachs charge ID
+#: includes/class-bachs-wc-gateway.php:905
+#, php-format
+msgid "Bachs payment received but needs review: %1$s Charge ID: %2$s. Check the payment in your Bachs dashboard before fulfilling this order."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:907 includes/class-bachs-wc-gateway.php:921 includes/class-bachs-wc-gateway.php:1048 includes/class-bachs-wc-gateway.php:1165 includes/class-bachs-wc-gateway.php:1229 includes/class-bachs-wc-gateway.php:1230 includes/class-bachs-wc-gateway.php:1261
+msgid "n/a"
+msgstr ""
+
+#. translators: 1: amount and currency paid, 2: Bachs charge ID
+#: includes/class-bachs-wc-gateway.php:919
+#, php-format
+msgid "Bachs payment of %1$s completed. Charge ID: %2$s"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:925
+msgid "The customer overpaid; see the payment in your Bachs dashboard for the extra amount."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:948
+msgid "Bachs accepted this payment on terms other than the exact amount requested."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:954
+msgid "the payment is not linked to a Bachs checkout session."
+msgstr ""
+
+#. translators: %s: Bachs checkout ID
+#: includes/class-bachs-wc-gateway.php:961
+#, php-format
+msgid "the payment came from checkout session %s, which this order did not create."
+msgstr ""
+
+#. translators: 1: session amount, 2: session currency, 3: order total, 4: order currency
+#: includes/class-bachs-wc-gateway.php:969
+#, php-format
+msgid "the checkout session was created for %1$s %2$s, but the order total is now %3$s %4$s."
+msgstr ""
+
+#. translators: 1: amount paid, 2: order total, 3: currency
+#: includes/class-bachs-wc-gateway.php:985
+#, php-format
+msgid "the customer paid %1$s but the order total is %2$s %3$s."
+msgstr ""
+
+#. translators: 1: amount and currency, 2: duplicate charge ID, 3: original charge ID
+#: includes/class-bachs-wc-gateway.php:1045
+#, php-format
+msgid "Duplicate payment: Bachs received another payment of %1$s (charge %2$s) for this order, which was already paid by charge %3$s. Refund the duplicate charge from your Bachs dashboard."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1117
+msgid "Payment failed at Bachs."
+msgstr ""
+
+#. translators: %s: failure reason
+#: includes/class-bachs-wc-gateway.php:1120
+#, php-format
+msgid "Bachs payment failed: %s"
+msgstr ""
+
+#. translators: 1: amount paid, 2: amount due, 3: amount outstanding, 4: currency code, 5: Bachs charge ID
+#: includes/class-bachs-wc-gateway.php:1160
+#, php-format
+msgid "Bachs payment was short. Paid %1$s of %2$s %4$s, leaving %3$s %4$s outstanding. Charge ID: %5$s. Collect the balance or refund the payment before fulfilling this order."
+msgstr ""
+
+#. translators: %s: Bachs checkout ID
+#: includes/class-bachs-wc-gateway.php:1199
+#, php-format
+msgid "Bachs checkout session %s expired without payment. The customer can still pay from the order payment page, which starts a new session."
+msgstr ""
+
+#. translators: 1: refunded amount, 2: Bachs refund ID
+#: includes/class-bachs-wc-gateway.php:1228
+#, php-format
+msgid "Bachs refund settled. Amount refunded: %1$s. Refund ID: %2$s"
+msgstr ""
+
+#. translators: 1: Bachs refund ID, 2: requested amount, 3: failure reason
+#: includes/class-bachs-wc-gateway.php:1259
+#, php-format
+msgid "Bachs refund %1$s for %2$s failed, so the customer has not been refunded, although this order still shows the refund. Reason: %3$s. Delete the refund from this order and refund again, or refund the customer another way."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1262
+msgid "not given"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1393
+msgid "We could not load the Bachs checkout. Please try again."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1396
+msgid "Your secure Bachs checkout is opening. If it does not appear, use the button below."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1398
+msgid "Pay with Bachs"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1401 includes/class-bachs-wc-gateway.php:1426
+msgid "Cancel order &amp; restore cart"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1489
+msgid "Checkout closed. Click \"Pay with Bachs\" to try again."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1490
+msgid "The payment failed. Click \"Pay with Bachs\" to try again."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1491
+msgid "This checkout session expired. Taking you back to start a new one…"
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1492
+msgid "The Bachs checkout could not load. Please disable any ad/script blocker for this page and try again."
+msgstr ""
+
+#: includes/class-bachs-wc-gateway.php:1493
+msgid "Something went wrong opening the checkout. Please try again, or cancel to start over."
+msgstr ""
